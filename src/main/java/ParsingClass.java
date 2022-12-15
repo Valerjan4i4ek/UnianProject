@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,25 +47,18 @@ public class ParsingClass {
     }
 
     public static List<NewsData> letsFind(String url){
-
-//        Pattern pattern = Pattern.compile("news_.+?<");
-//        Pattern pattern = Pattern.compile("(?:news)(\\w+)");
-        List<NewsData> list = new ArrayList<>();
-        String regex = "<div class=\"list-thumbs__item\"><a href=\"(.*?)\".+alt=\"(.*?)src";
+        List<NewsData> list = new CopyOnWriteArrayList<>();
+        String regex = "<div class=\"list-thumbs__time time\">(.+)</div></div></div><div class=\"list-thumbs__item\"><a href=\"(.*?)\".+alt=\"(.*?)\" src";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
-//        String s = "";
-        String result = "";
+        String urlName = "";
+        String articleName = "";
+
         while(matcher.find()){
-//            s = matcher.group();
-            String urlName = matcher.group(1);
-            String articleName = matcher.group(2);
+            urlName = matcher.group(2);
+            articleName = matcher.group(3);
             NewsData newsData = new NewsData(urlName, articleName);
             list.add(newsData);
-
-//            result = urlName + " " + articleName;
-//            System.out.println(urlName + " " + articleName);
-
         }
         return list;
     }
