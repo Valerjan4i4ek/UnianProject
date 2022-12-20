@@ -48,7 +48,7 @@ public class ParsingClass {
 
     public static List<NewsData> letsFind(String url){
         List<NewsData> list = new CopyOnWriteArrayList<>();
-        String regex = "<div class=\"list-thumbs__time time\">(.+)</div></div></div><div class=\"list-thumbs__item\"><a href=\"(.*?)\".+alt=\"(.*?)\" src";
+        String regex = "<div class=\"list-thumbs__time time\">(.+)</div></div></div><div class=\"list-thumbs__item\"><a href=\"(.+?)\".+alt=\"(.+)\" src";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
         String urlName = "";
@@ -62,4 +62,13 @@ public class ParsingClass {
         }
         return list;
     }
+
+    /*<div class="list-thumbs__time time">15:59, 15.12.2022</div></div></div><div class="list-thumbs__item"><a href=
+    "https://www.unian.ua/economics/finance/bank-angliji-dev-yatiy-raz-pospil-pidvishchiv-procentnu-stavku-12079614.html"
+    class="list-thumbs__image"><img data-src="https://images.unian.net/photos/2022_02/thumb_files/220_140_1645197273-3481.jpg"
+    alt="Банк Англії дев&#039;ятий раз поспіль підвищив процентну ставку" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" />
+    </a><div class="list-thumbs__info"><h3><a href="https://www.unian.ua/economics/finance/bank-angliji-dev-yatiy-raz-pospil-pidvishchiv-
+    procentnu-stavku-12079614.html" class="list-thumbs__title">
+    Банк Англії дев&#039;ятий раз поспіль підвищив процентну ставку
+    </a></h3>*/
 }
