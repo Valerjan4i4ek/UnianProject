@@ -48,7 +48,8 @@ public class ParsingClass {
 
     public static List<NewsData> letsFind(String url){
         List<NewsData> list = new CopyOnWriteArrayList<>();
-        String regex = "<div class=\"list-thumbs__time time\">(.+)</div></div></div><div class=\"list-thumbs__item\"><a href=\"(.*?)\".+alt=\"(.*?)\" src";
+        String regex =
+                "<div class=\"list-thumbs__time time\">(.+?)</div></div></div><div class=\"list-thumbs__item\"><a href=\"(.+?)\".+alt=\"(.+?)\" src";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
         String urlName = "";
@@ -57,6 +58,7 @@ public class ParsingClass {
         while(matcher.find()){
             urlName = matcher.group(2);
             articleName = matcher.group(3);
+//            System.out.println(urlName + " " + articleName);
             NewsData newsData = new NewsData(urlName, articleName);
             list.add(newsData);
         }
