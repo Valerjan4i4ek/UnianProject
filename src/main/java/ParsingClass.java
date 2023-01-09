@@ -1,12 +1,17 @@
+import javafx.animation.ParallelTransition;
+import javafx.scene.shape.PathElement;
+
+import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.MalformedParameterizedTypeException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,15 +20,93 @@ public class ParsingClass {
     public static final String UNIAN_LINK = "https://www.unian.ua/tag/viyna-v-ukrajini";
     private final static String USER_AGENT = "Chrome/104.0.0.0";
 
+    static NewsDataCache newsDataCache = new NewsDataCache();
+    static TextArticleCache textArticleCache = new TextArticleCache();
+
     public static void main(String [] args) throws IOException {
-//        System.out.println(getURLData(UNIAN_LINK));
-        List<NewsData> list = letsFind(getURLData(UNIAN_LINK));
-        for(NewsData newsData : list){
-            System.out.println(newsData.getUrlName());
-            System.out.println(newsData.getArticleName());
+        Map<Integer, NewsData> newsDataMap = parsingNews(UNIAN_LINK);
+        List<PagesData> pagesDataList = parsingPages(UNIAN_LINK);
+        start(newsDataMap, pagesDataList);
+    }
+
+    public static void start(Map<Integer, NewsData> newsDataMap, List<PagesData> pagesDataList) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("News or Pages : 1 or 2");
+        int newsOrPages = scanner.nextInt();
+        int newsNumber;
+        int pagesNumber;
+        if(newsOrPages == 1){
+            System.out.println("Choose number of news");
+            newsNumber = scanner.nextInt();
+            if(newsDataMap.containsKey(newsNumber)){
+                NewsData newsData = newsDataMap.get(newsNumber);
+                if(getNewsDataCache(newsData.getLink()) != null){
+                    if(getTextArticleCache(newsData.getLink()) != null){
+                        System.out.println(parsingText(Objects.requireNonNull(getTextArticleCache(newsData.getLink())).getLink()));
+                        parsingText(Objects.requireNonNull(getTextArticleCache(newsData.getLink())).getLink());
+                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
+                    }
+                    else{
+                        String s = parsingText(newsData.getLink());
+                        System.out.println(s);
+                        addTextArticleCache(newsData.getArticle(), newsData.getLink(), s);
+                        parsingText(Objects.requireNonNull(getNewsDataCache(newsData.getLink())).getLink());
+                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
+                    }
+                }
+                else{
+                    addNewsDataCache(newsData.getArticle(), newsData.getLink());
+                    if(getTextArticleCache(newsData.getLink()) != null){
+                        System.out.println(parsingText(Objects.requireNonNull(getTextArticleCache(newsData.getLink())).getLink()));
+                        parsingText(Objects.requireNonNull(getTextArticleCache(newsData.getLink())).getLink());
+                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
+                    }
+                    else{
+                        String s = parsingText(newsData.getLink());
+                        System.out.println(s);
+                        addTextArticleCache(newsData.getArticle(), newsData.getLink(), s);
+                        parsingText(newsData.getLink());
+                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
+                    }
+                }
+            }
+        }
+        else if(newsOrPages == 2){
+            System.out.println("Choose number of page");
+            pagesNumber = scanner.nextInt();
+            for(PagesData pagesData : pagesDataList){
+                if(pagesData.getPageNumber() == pagesNumber){
+                    start(parsingNews(pagesData.getLink()), parsingPages(pagesData.getLink()));
+                }
+            }
+
+        }
+        else{
+            System.out.println("incorrect");
         }
     }
 
+    public static void addTextArticleCache(String article, String link, String articleText){
+        textArticleCache.addTextArticleCache(article, link, articleText);
+    }
+
+    public static TextArticle getTextArticleCache(String link){
+        if(textArticleCache.getTextArticleCache(link) != null){
+            return textArticleCache.getTextArticleCache(link);
+        }
+        return null;
+    }
+
+    public static void addNewsDataCache(String article, String link){
+        newsDataCache.addNewsDataCache(article, link);
+    }
+
+    public static NewsData getNewsDataCache(String link){
+        if(newsDataCache.getNewsDataCache(link) != null){
+            return newsDataCache.getNewsDataCache(link);
+        }
+        return null;
+    }
     public static String getURLData(String link) throws IOException{
         URL urlObject = new URL(link);
         HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
@@ -46,19 +129,69 @@ public class ParsingClass {
         return response.toString();
     }
 
-    public static List<NewsData> letsFind(String url){
-        List<NewsData> list = new CopyOnWriteArrayList<>();
-        String regex = "<div class=\"list-thumbs__time time\">(.+?)</div></div></div><div class=\"list-thumbs__item\"><a href=\"(.*?)\".+alt=\"(.*?)\" src";
+    public static String parsingText(String link) throws IOException{
+        String url = getURLData(link);
+        String regex = "<p>(.+?)</p>";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
-        String urlName = "";
-        String articleName = "";
+        String result = "";
+        StringBuffer sb = new StringBuffer();
 
-        while(matcher.find()){
-            urlName = matcher.group(2);
-            articleName = matcher.group(3);
-            NewsData newsData = new NewsData(urlName, articleName);
-            list.add(newsData);
+        while (matcher.find()){
+            result = matcher.group(1);
+            if(!result.contains("Правила користування сайтом")){
+                String[] strArray = result.split("<.+?>");
+                for(String s : strArray){
+                    sb.append(s);
+                }
+                sb.append("\n");
+            }
+        }
+
+//        Pattern pattern1 = Pattern.compile();
+//        Matcher matcher1 = pattern1.matcher(sb);
+
+        return sb.toString();
+    }
+
+    public static Map<Integer, NewsData> parsingNews(String lInk) throws IOException{
+        Map<Integer, NewsData> map = new ConcurrentHashMap<>();
+        String url = getURLData(lInk);
+        String regex = "<div class=\"list-thumbs__time time\">(.+?)</div></div></div><div class=\"list-thumbs__item\"><a href=\"(.+?)\".+?alt=\"(.+?)\" src";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(url);
+        String link = "";
+        String article = "";
+        int i = 1;
+        while (matcher.find()){
+            link = matcher.group(2);
+            article = matcher.group(3);
+            System.out.println(i + " " + article);
+            System.out.println(link);
+            NewsData newsData = new NewsData(i, article, link);
+            map.put(i, newsData);
+            i++;
+        }
+        return map;
+    }
+
+    public static List<PagesData> parsingPages(String link) throws IOException{
+        List<PagesData> list = new ArrayList<>();
+        String url = getURLData(link);
+        String regex = "(/tag/viyna-v-ukrajini\\?page=(.+?)\")";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(url);
+        int pageNumber;
+        String urlName = "";
+        int i = 0;
+        while (matcher.find() && i < 6){
+            pageNumber = Integer.parseInt(matcher.group(2));
+            urlName = "https://www.unian.ua/" + matcher.group(1);
+            StringBuilder sb = new StringBuilder(urlName);
+            System.out.println(pageNumber + " " + sb.deleteCharAt(sb.length()-1));
+            PagesData pagesData = new PagesData(pageNumber, urlName);
+            list.add(pagesData);
+            i++;
         }
         return list;
     }

@@ -1,17 +1,29 @@
 public class NewsData {
-    private String urlName;
-    private String articleName;
 
-    public NewsData(String urlName, String articleName) {
-        this.urlName = urlName;
-        this.articleName = articleName;
+    private int numberOfNews;
+    private String article;
+    private String link;
+
+    public NewsData(int numberOfNews,  String article, String link) {
+        this.numberOfNews = numberOfNews;
+        this.article = article;
+        this.link = link;
     }
 
-    public String getUrlName() {
-        return urlName;
+    public NewsData(String article, String link) {
+        this.article = article;
+        this.link = link;
     }
 
-    public String getArticleName() {
-        return articleName;
+    public int getNumberOfNews() {
+        return numberOfNews;
+    }
+
+    public String getArticle() {
+        return article;
+    }
+
+    public String getLink() {
+        return link;
     }
 }
