@@ -181,15 +181,16 @@ public class ParsingClass {
         String regex = "(/tag/viyna-v-ukrajini\\?page=(.+?)\")";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
-        int pageNumber;
+        String pageNumber;
         String urlName = "";
         int i = 0;
         while (matcher.find() && i < 6){
-            pageNumber = Integer.parseInt(matcher.group(2));
-            urlName = "https://www.unian.ua/" + matcher.group(1);
+            pageNumber = matcher.group(2);
+            urlName = "https://www.unian.ua" + matcher.group(1);
             StringBuilder sb = new StringBuilder(urlName);
-            System.out.println(pageNumber + " " + sb.deleteCharAt(sb.length()-1));
-            PagesData pagesData = new PagesData(pageNumber, urlName);
+            sb.deleteCharAt(sb.length()-1);
+            System.out.println(pageNumber + " " + sb);
+            PagesData pagesData = new PagesData(Integer.parseInt(pageNumber), sb.toString());
             list.add(pagesData);
             i++;
         }
