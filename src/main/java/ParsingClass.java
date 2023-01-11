@@ -158,7 +158,7 @@ public class ParsingClass {
         Map<Integer, NewsData> map = new ConcurrentHashMap<>();
         String url = getURLData(lInk);
 //        String regex = "<div class=\"list-thumbs__time time\">(.+?)</div></div></div><div class=\"list-thumbs__item\"><a href=\"(.+?)\".+?alt=\"(.+?)\" src";
-        String regex = "<a href=\"(.+?)\" class=\"list-thumbs__title\">(.+?)</a>.+?<h3>";
+        String regex = "<h3><a href=\"(.+?)\" class=\"list-thumbs__title\">(.+?)</a>";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
         String link = "";
