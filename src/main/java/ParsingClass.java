@@ -157,15 +157,16 @@ public class ParsingClass {
     public static Map<Integer, NewsData> parsingNews(String lInk) throws IOException{
         Map<Integer, NewsData> map = new ConcurrentHashMap<>();
         String url = getURLData(lInk);
-        String regex = "<div class=\"list-thumbs__time time\">(.+?)</div></div></div><div class=\"list-thumbs__item\"><a href=\"(.+?)\".+?alt=\"(.+?)\" src";
+//        String regex = "<div class=\"list-thumbs__time time\">(.+?)</div></div></div><div class=\"list-thumbs__item\"><a href=\"(.+?)\".+?alt=\"(.+?)\" src";
+        String regex = "<a href=\"(.+?)\" class=\"list-thumbs__title\">(.+?)</a>.+?<h3>";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
         String link = "";
         String article = "";
         int i = 1;
         while (matcher.find()){
-            link = matcher.group(2);
-            article = matcher.group(3);
+            link = matcher.group(1);
+            article = matcher.group(2);
             System.out.println(i + " " + article);
             System.out.println(link);
             NewsData newsData = new NewsData(i, article, link);
