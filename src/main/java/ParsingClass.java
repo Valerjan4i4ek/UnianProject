@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 public class ParsingClass {
     public static final String UNIAN_LINK = "https://www.unian.ua/tag/viyna-v-ukrajini";
     private final static String USER_AGENT = "Chrome/104.0.0.0";
+    static Scanner scanner = new Scanner(System.in);
 
     static NewsDataCache newsDataCache = new NewsDataCache();
     static TextArticleCache textArticleCache = new TextArticleCache();
@@ -26,15 +27,20 @@ public class ParsingClass {
     public static void main(String [] args) throws IOException {
         Map<Integer, NewsData> newsDataMap = parsingNews(UNIAN_LINK);
         List<PagesData> pagesDataList = parsingPages(UNIAN_LINK);
-        start(newsDataMap, pagesDataList);
+        boolean b = false;
+        while (!b){
+            b = start(newsDataMap, pagesDataList);
+        }
+//        start(newsDataMap, pagesDataList);
     }
 
-    public static void start(Map<Integer, NewsData> newsDataMap, List<PagesData> pagesDataList) throws IOException {
-        Scanner scanner = new Scanner(System.in);
+    public static boolean start(Map<Integer, NewsData> newsDataMap, List<PagesData> pagesDataList) throws IOException {
+
         System.out.println("News or Pages : 1 or 2");
         int newsOrPages = scanner.nextInt();
         int newsNumber;
         int pagesNumber;
+        boolean b;
         if(newsOrPages == 1){
             System.out.println("Choose number of news");
             newsNumber = scanner.nextInt();
@@ -44,14 +50,18 @@ public class ParsingClass {
                     if(getTextArticleCache(newsData.getLink()) != null){
                         System.out.println(parsingText(Objects.requireNonNull(getTextArticleCache(newsData.getLink())).getLink()));
                         parsingText(Objects.requireNonNull(getTextArticleCache(newsData.getLink())).getLink());
-                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
+                        b = reStart();
+                        return b;
+//                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
                     }
                     else{
                         String s = parsingText(newsData.getLink());
                         System.out.println(s);
                         addTextArticleCache(newsData.getArticle(), newsData.getLink(), s);
                         parsingText(Objects.requireNonNull(getNewsDataCache(newsData.getLink())).getLink());
-                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
+                        b = reStart();
+                        return b;
+//                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
                     }
                 }
                 else{
@@ -59,14 +69,18 @@ public class ParsingClass {
                     if(getTextArticleCache(newsData.getLink()) != null){
                         System.out.println(parsingText(Objects.requireNonNull(getTextArticleCache(newsData.getLink())).getLink()));
                         parsingText(Objects.requireNonNull(getTextArticleCache(newsData.getLink())).getLink());
-                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
+                        b = reStart();
+                        return b;
+//                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
                     }
                     else{
                         String s = parsingText(newsData.getLink());
                         System.out.println(s);
                         addTextArticleCache(newsData.getArticle(), newsData.getLink(), s);
                         parsingText(newsData.getLink());
-                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
+                        b = reStart();
+                        return b;
+//                        start(parsingNews(UNIAN_LINK), parsingPages(UNIAN_LINK));
                     }
                 }
             }
@@ -77,12 +91,29 @@ public class ParsingClass {
             for(PagesData pagesData : pagesDataList){
                 if(pagesData.getPageNumber() == pagesNumber){
                     start(parsingNews(pagesData.getLink()), parsingPages(pagesData.getLink()));
+
                 }
             }
 
         }
         else{
             System.out.println("incorrect");
+        }
+        return false;
+    }
+
+    public static boolean reStart(){
+        System.out.println("Restart? Y/N");
+        String s = scanner.next();
+        if(s.equalsIgnoreCase("Y")){
+            return false;
+        }
+        else if(s.equalsIgnoreCase("N")){
+            return true;
+        }
+        else{
+            System.out.println("incorrect");
+            return false;
         }
     }
 
