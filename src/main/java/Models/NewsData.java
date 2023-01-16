@@ -1,3 +1,5 @@
+package Models;
+
 public class NewsData {
 
     private int numberOfNews;

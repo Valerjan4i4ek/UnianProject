@@ -1,18 +1,16 @@
-import javafx.animation.ParallelTransition;
-import javafx.scene.shape.PathElement;
+package Parsing;
 
-import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
+import Models.NewsData;
+import Models.PagesData;
+import Models.TextArticle;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.MalformedParameterizedTypeException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

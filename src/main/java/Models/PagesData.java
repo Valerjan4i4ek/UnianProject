@@ -1,3 +1,5 @@
+package Models;
+
 public class PagesData {
     private int pageNumber;
     private String link;

@@ -1,3 +1,7 @@
+package Parsing;
+
+import Models.TextArticle;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

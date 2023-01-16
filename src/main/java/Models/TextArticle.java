@@ -1,3 +1,5 @@
+package Models;
+
 public class TextArticle {
     private String article;
     private String link;
